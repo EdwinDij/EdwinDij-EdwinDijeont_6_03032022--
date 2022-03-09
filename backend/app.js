@@ -1,5 +1,13 @@
 const express = require('express');
 
+const mongoose = require('mongoose')
+mongoose.connect('mongodb+srv://Edwind:<191623Er>@cluster-piquante.6sa2s.mongodb.net/Cluster-Piquante?retryWrites=true&w=majority',
+{ useNewUrlParser: true,
+  useUnifiedTopology: true })
+.then(() => console.log('Connexion à MongoDB réussie !'))
+.catch(() => console.log('Connexion à MongoDB échouée !'));
+
+
 const app = express();
 
 app.use(express.json());
@@ -11,7 +19,12 @@ app.use((req, res, next)=> {
   next();
 });
 
-app.post
+app.post('/api/stuff', (req, res, next)=> {
+  console.log(req.body);
+  res.status(201).json({
+    message: 'objet crée!'
+  });
+});
 
 app.use('/api/stuff', (req, res, next) => {
 
