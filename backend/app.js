@@ -7,9 +7,6 @@ const rateLimit = require('express-rate-limit')
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
 
-app.use(helmet());
-app.use(mongoSanitize());
-
 require('dotenv').config()
 const db = process.env;
 
@@ -17,7 +14,7 @@ const userRoutes = require('./routes/user');
 const sauceRoutes = require('./routes/sauce');
 
     // lien database mongoose 
-mongoose.connect('mongodb+srv://EdwinAdm:PbveaZ5VCOY7kkB9@piiquante.6sa2s.mongodb.net/Piiquante?retryWrites=true&w=majority',
+mongoose.connect(db.dbUrl,
     { useNewUrlParser: true, useUnifiedTopology: true})
     .then(() => console.log('Connexion à MongoDB réussie !'))
     .catch(() => console.log('Connexion à MongoDB échouée !'));
@@ -35,6 +32,11 @@ app.use((req, res, next) => {
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
+
+// securisation de l'api
+app.use(helmet());
+app.use(mongoSanitize());
+
 app.use(
     mongoSanitize({
       allowDots: true,
@@ -48,17 +50,34 @@ app.use(
     }),
   );
 
-  import rateLimit from 'express-rate-limit'
-
+// Creating a limiter by calling rateLimit function with options:
+// max contains the maximum number of request and windowMs 
+// contains the time in millisecond so only max amount of 
+// request can be made in windowMS time.
 const limiter = rateLimit({
-	windowMs: 15 * 60 * 1000, // 15 minutes
-	max: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
-	standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
-	legacyHeaders: false, // Disable the `X-RateLimit-*` headers
-})
-
-// Apply the rate limiting middleware to all requests
-app.use(limiter)
+    max: 100,
+    windowMs: 60 * 60 * 1000,
+    message: "Too many request from this IP"
+});
+  
+// Add the limiter function to the express middleware
+// so that every request coming from user passes 
+// through this middleware.
+app.use(limiter);
+  
+// GET route to handle the request coming from user
+app.get("/", (req, res) => {
+    res.status(200).json({
+        status: "success",
+        message: "Hello from the express server"
+    });
+});
+  
+// Server Setup
+const port = 8000;
+app.listen(port, () => {
+    console.log(`app is running on port ${port}`);
+});
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
