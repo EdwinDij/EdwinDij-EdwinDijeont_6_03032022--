@@ -7,7 +7,9 @@ L'application back-end est développé en express.js.
 ## Configuration
 
 Cloner ce repo:  
-dans le terminal => git clone https://github.com/EdwinDij/EdwinDij-EdwinDijeont_6_03032022--.git  
+dans le terminal => git clone https://github.com/EdwinDij/EdwinDij-EdwinDijeont_6_03032022--.git 
+ajouter un dossier "imges"
+renommer le fichier .env-exemple en .env et mettre ses identifiant mongodb
 
 ### Pour mettre en marche le front-end
 
