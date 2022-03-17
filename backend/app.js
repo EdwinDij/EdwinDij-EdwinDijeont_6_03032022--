@@ -33,22 +33,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 
 
-// securisation de l'api
+// middleware
 app.use(helmet());
-app.use(mongoSanitize());
 
-app.use(
-    mongoSanitize({
-      allowDots: true,
-    }),
-  );
-
-  app.use(
-    mongoSanitize({
-      allowDots: true,
-      replaceWith: '_',
-    }),
-  );
 
 // Creating a limiter by calling rateLimit function with options:
 // max contains the maximum number of request and windowMs 
@@ -79,7 +66,7 @@ app.listen(port, () => {
     console.log(`app is running on port ${port}`);
 });
 
-app.use('/images', express.static(path.join(__dirname, 'images')));
+app.use('/images/', express.static(path.join(__dirname, 'images')));
 
 app.use('/api/auth', userRoutes);
 app.use('/api/sauces', sauceRoutes);

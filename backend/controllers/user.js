@@ -1,7 +1,12 @@
+ // le package jsonwebtoken attribu un token à un utilisateur au moment ou il se connecte
 const jwt = require('jsonwebtoken');
+
+// utilisation de  l'algorithme bcrypt pour hasher le mot de passe des utilisateurs
 const bcrypt = require('bcrypt');
 const validator = require('email-validator');
 const user = require('../models/user');
+
+// sauvegarde d'un nouvel utilisateur
 
 exports.signup = (req, res, next) => {
     if(!validator.validate(req.body.email))return res.status(403).json({message: 'Le format de l\'adresse mail est incorrect.'})
@@ -20,6 +25,8 @@ exports.signup = (req, res, next) => {
     } else return res.status(403).json({message: 'Votre mot de passe doit contenir 8 caractères minimum.'})
 };
 
+// Le Middleware pour la connexion d'un utilisateur vérifie si l'utilisateur existe dans la base MongoDB lors du login
+//si oui il vérifie son mot de passe, s'il est bon il renvoie un TOKEN contenant l'id de l'utilisateur, sinon il renvoie une erreur
 exports.login = (req, res, next) => {
     user.findOne({ email: req.body.email })
         .then(myUser => {

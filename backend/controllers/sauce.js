@@ -25,11 +25,13 @@ exports.createSauce = (req, res, next) => {
         usersLiked: '',
         usersDisliked: ''
     });
+    // Sauvegarde de la sauce dans la base de données
     newSauce.save()
         .then(() => res.status(201).json({ message: 'Nouvelle sauce insérée avec succès !' }))
         .catch(error => res.status(400).json({ error }));
 };
 
+// Permet de modifier une sauce
 
 exports.updateSauce = (req, res, next) => {
     if(req.file) {
@@ -51,7 +53,7 @@ exports.updateSauce = (req, res, next) => {
     }, 250);
 };
 
-
+// Permet de supprimer la sauce
 exports.deleteSauce = (req, res, next) => {
     sauce.findOne({ _id: req.params.id })
         .then(newSauce => {
