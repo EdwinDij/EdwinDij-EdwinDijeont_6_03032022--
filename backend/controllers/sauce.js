@@ -34,7 +34,6 @@ exports.createSauce = (req, res, next) => {
 
 
 // Permet de modifier une sauce
-
 exports.updateSauce = (req, res, next) => { 
 
     sauce.findOne({ _id: req.params.id }).then(res_sauce => {
@@ -43,23 +42,12 @@ exports.updateSauce = (req, res, next) => {
             res.status(401).json({ error: new Error('Requête non autorisée!')});
         }
 
-         // factorisation 
-         function updateProcess() {
-            sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id:req.params.id})
-                .then(() => {
-                    console.log("Updated");
-                    return res.status(200).json({ message: 'Sauce modifiée' })
-                }
-                    )
 
-                .catch(error => res.status(400).json({ error }));
-        }
-        
         // ternaire, objet sauce contient aussi fichier si changement image
         const sauceObject = req.file ?
             {
                 ...JSON.parse(req.body.sauce),
-                imageUrl: `${req.protocol}` `${req.get('host')}/images/${req.file.filename}`
+                imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
             } : { ...req.body };
 
         // factorisation 
