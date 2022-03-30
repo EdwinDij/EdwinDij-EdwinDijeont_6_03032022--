@@ -32,31 +32,60 @@ exports.createSauce = (req, res, next) => {
         .catch(error => res.status(400).json({ error }));
 };
 
+
 // Permet de modifier une sauce
 
+exports.updateSauce = (req, res, next) => { 
 
-    exports.updateSauce = (req, res, next) => {
-        if(req.file) {
-            sauce.findOne({ _id: req.params.id })
-            .then ((sauce) =>{
-                if(sauce.userId !== req.auth.userId) {
-                    return res.status(401).json({
-                        error: new Error ('Requête non autorisé !')
-                    })}
-                    const last_filename = sauce.imageUrl.split('/images/')[1];
-                    fs.unlink('images/' + last_filename, () => {
-                        const sauceObject = req.file ? {
-                            ...JSON.parse(req.body.sauce),
-                            imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`
-                            } : { ...req.body };
-                            sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id: req.params.id })
-                                .then(() => res.status(200).json({ message: 'Objet modifié !'}))
-                                .catch(error => res.status(400).json({ error }));                
-                        });         
-                })
-                .catch(error => console.log('Echec de la suppression de l\'ancienne image.'));
+    sauce.findOne({ _id: req.params.id }).then(res_sauce => {
+        // test si c'est le user qui possède la sauce qui modifie
+        if(res_sauce.userId !== req.auth.userId) {
+            res.status(401).json({ error: new Error('Requête non autorisée!')});
         }
-    };
+
+         // factorisation 
+         function updateProcess() {
+            sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id:req.params.id})
+                .then(() => {
+                    console.log("Updated");
+                    return res.status(200).json({ message: 'Sauce modifiée' })
+                }
+                    )
+
+                .catch(error => res.status(400).json({ error }));
+        }
+        
+        // ternaire, objet sauce contient aussi fichier si changement image
+        const sauceObject = req.file ?
+            {
+                ...JSON.parse(req.body.sauce),
+                imageUrl: `${req.protocol}` `${req.get('host')}/images/${req.file.filename}`
+            } : { ...req.body };
+
+        // factorisation 
+        function updateProcess() {
+            sauce.updateOne({ _id: req.params.id }, { ...sauceObject, _id:req.params.id})
+                .then(() => {
+                    console.log("Updated");
+                    return res.status(200).json({ message: 'Sauce modifiée' })
+                }
+                    )
+
+                .catch(error => res.status(400).json({ error }));
+        }
+        // il s'agit d'un changement d'image, auquel cas suppression de l'image d'origine
+        if(req.file) {
+            fs.unlink(res_sauce.imageUrl.substring(res_sauce.imageUrl.indexOf('images/')), () => {
+                updateProcess();
+            });
+        }
+        else { // ici pas de changement d'image
+            updateProcess();
+        }
+
+    })
+    .catch(error => res.status(400).json({ error }));
+};
 
 // Permet de supprimer la sauce
 exports.deleteSauce = (req, res, next) => {
